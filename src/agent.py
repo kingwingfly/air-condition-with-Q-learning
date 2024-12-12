@@ -5,6 +5,7 @@ from utils import get_inputs, print_if_testing
 import numpy as np
 from type import Action
 
+
 class Agent(Thread):
     def __init__(self, alpha: float, gamma: float, epsilon: float):
         super().__init__()
@@ -37,30 +38,36 @@ class Agent(Thread):
             idx: int = np.random.choice(m)
             return ACTIONS[idx]
         for state in STATES:
-            if not (state[0] <= self.data.cdi[-1] < state[1] or self.data.cdi[-1] == state[1] == 1):
+            if not (
+                state[0] <= self.data.cdi[-1] < state[1]
+                or self.data.cdi[-1] == state[1] == 1.0
+            ):
                 continue
             distribution = [self.epsilon / m] * m
             idx = max(range(m), key=lambda i: self.data.q[state][ACTIONS[i]])
             distribution[idx] += 1 - self.epsilon
             idx = np.random.choice(m, p=distribution)
             return ACTIONS[idx]
-        raise RuntimeError("No action recommended.")
+        raise RuntimeError(
+            "No action recommended. cdi out of range. make sure data and STATES are correct."
+        )
 
-    def execute_action(self, action: Action):
-        ...
+    def execute_action(self, action: Action): ...
 
     def collect_data(self):
         if TESTING:
             t = [float(i) for i in range(0, 5)]
             tp = [float(i) for i in range(0, 5)]
             u = [float(i) for i in range(0, 5)]
-            cdi = (max(t) - min(t)) / max(t)
             input("Using testing data, Press any key to continue...")
         else:
             t = get_inputs("Enter the time cost: ", float)
-            tp = get_inputs("Enter the temperature: ", float)
+            tp = get_inputs("Enter the initial temperature: ", float)
             u = get_inputs("Enter the AHU valve openings: ", float)
-            cdi = (max(t) - min(t)) / max(t)
+            assert (
+                len(t) == len(tp) == len(u)
+            ), "Lengths of time cost, initial temperature, and AHU valve openings must be the same."
+        cdi = 1 - min(t) / max(t)
         self.data.t.append(t)
         self.data.tp.append(tp)
         self.data.u.append(u)
@@ -71,13 +78,23 @@ class Agent(Thread):
             print("Not enough data to update Q table.")
             return
         for old_s in STATES:
-            if not (old_s[0] <= self.data.cdi[-2] < old_s[1] or self.data.cdi[-2] == old_s[1] == 1):
+            if not (
+                old_s[0] <= self.data.cdi[-2] < old_s[1]
+                or self.data.cdi[-2] == old_s[1] == 1.0
+            ):
                 continue
             for new_s in STATES:
-                if not (new_s[0] <= self.data.cdi[-1] < new_s[1] or self.data.cdi[-1] == new_s[1] == 1):
+                if not (
+                    new_s[0] <= self.data.cdi[-1] < new_s[1]
+                    or self.data.cdi[-1] == new_s[1] == 1.0
+                ):
                     continue
-                r = -max(self.data.t[-1]) # reward
+                r = -max(self.data.t[-1])  # reward
                 self.data.q[old_s][action] *= 1 - self.alpha
-                self.data.q[old_s][action] += self.alpha * (r + self.gamma * max(self.data.q[new_s].values()))
+                self.data.q[old_s][action] += self.alpha * (
+                    r + self.gamma * max(self.data.q[new_s].values())
+                )
                 return
-        raise RuntimeError("Failed to update Q table.")
+        raise RuntimeError(
+            "Failed to update Q table. cdi out of range. make sure data and STATES are correct."
+        )
