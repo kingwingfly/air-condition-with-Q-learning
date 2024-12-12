@@ -1,5 +1,6 @@
-from config import TESTING
+from config import TESTING, STATES
 from pprint import pprint as print
+from type import State
 
 
 def get_inputs(prompt: str, type_: type) -> list[float | int]:
@@ -35,3 +36,13 @@ def get_inputs(prompt: str, type_: type) -> list[float | int]:
 def print_if_testing(s: object):
     if TESTING:
         print(s)
+
+
+def which_state(cdi: float) -> State:
+    for state in STATES:
+        if not (state[0] <= cdi < state[1] or cdi == state[1] == 1.0):
+            continue
+        return state
+    raise RuntimeError(
+        "cdi out of range. make sure data and STATES are correct."
+    )

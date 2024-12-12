@@ -2,7 +2,7 @@ from type import Action, State
 
 # set to True to use testing data
 # set to False to use user inputs
-TESTING = False
+TESTING = True
 
 ALPHA, GAMMA, EPSILON = 0.9, 0.1, 0.3
 
