@@ -7,6 +7,7 @@ TESTING = True
 ALPHA, GAMMA, EPSILON = 0.9, 0.1, 0.3
 
 # path to save/load data
+# only used when TESTING is False
 PATH = "data.pkl"
 
 # list of actions and states.
