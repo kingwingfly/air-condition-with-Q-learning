@@ -8,3 +8,9 @@ Modify the `src/config.py` to change the configuration.
 ```sh
 uv run src/main.py
 ```
+
+# Conclusion
+
+As I reading the article, I found the state choosing is totally wrong. 
+And its simulation is actually fake which shows improvement on the sys 
+with only 3 updates while 15 Q-values in total. 
