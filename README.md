@@ -14,3 +14,7 @@ uv run src/main.py
 As I reading the article, I found the state choosing is totally wrong. 
 And its simulation is actually fake which shows improvement on the sys 
 with only 3 updates while 15 Q-values in total. 
+
+Its reward and choosing strategy are also wrong. If A is chosen, no matter the effect,
+punishment is given and the strategy will always likely choose the greatest Q, 
+the model will never converge. 
